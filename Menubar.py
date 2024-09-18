@@ -1,6 +1,18 @@
-def SaveVariable():
+def saveVariable():
     pass
 
 
-def WriteVarToFile():
+def writeVar():
+    pass
+
+
+def copyVarToClipboard():
+    pass
+
+
+def pasteVarToVarbox():
+    pass
+
+
+def popUpHelp():
     pass
