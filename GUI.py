@@ -10,12 +10,17 @@ class VariableGenerator(Frame):
 
     def __init__(self, master=None):
         super().__init__(master)
-        self.master = master
-        self.pack()
-        self.createMenu()
+ 
+        self.master = master # setting the root window so that it is accessable from this class
+        self.pack() # Packing the frame onto the Root window
+        self.createMenu() # Creating the Menubar at the top of the screen
         self.createInput()
         self.createOutput()
+        self.value = 0
+        self.pbp_variable = self.output_textbox.get('1.0')
         self.gridWidgets()
+        self.makeVar()
+        self.keybinds()
 
 
     def createMenu(self):
@@ -24,8 +29,8 @@ class VariableGenerator(Frame):
 
         # Creating the file dropdown menu
         self.master.filemenu = Menu(self.master.menubar, tearoff=0)
-        self.master.filemenu.add_command(label="Save", command=saveVariable)
-        self.master.filemenu.add_command(label="Write", command=writeVar)
+        self.master.filemenu.add_command(label="Save", command= lambda: saveVariable(self.pbp_variable))
+        self.master.filemenu.add_command(label="Write", command=lambda: writeVar(self.pbp_variable))
 
         # Creating the Edit Dropdown menu
         self.master.editmenu = Menu(self.master.menubar, tearoff=0)
@@ -92,6 +97,7 @@ class VariableGenerator(Frame):
         self.output_scrollbar = Scrollbar(self, command=self.output_textbox.yview)
         self.output_textbox.insert(index='1.0', chars=self.output_string)
         self.output_textbox['yscrollcommand'] = self.output_scrollbar.set
+        # self.output_textbox.configure(scrollregion=self.output_textbox.bbox(index=))
         # self.output_string.set("MyVar1 var byte\nMyVar1 = $7f")
 
         self.generate_var = Button(self, text='Make Var!', command=self.makeVar)
@@ -99,28 +105,28 @@ class VariableGenerator(Frame):
 
     def gridWidgets(self):
 
-        self.name_lbl.grid(                 row=0, column=1,            columnspan=1, padx=20, pady=10)
-        self.name_entry.grid(               row=0, column=2,            columnspan=3, padx=10, pady=10)
+        self.name_lbl.grid(                 row=0, column=1,            columnspan=1, padx=20,  pady=10)
+        self.name_entry.grid(               row=0, column=2,            columnspan=3, padx=10,  pady=10)
 
-        self.type_lbl.grid(                 row=1, column=0,            columnspan=2, padx=3, pady=10)
+        self.type_lbl.grid(                 row=1, column=0,            columnspan=2, padx=3,   pady=10)
         self.type_spinbox.grid(             row=1, column=0,            columnspan=4, padx=146, pady=10)
 
         self.var_value_lbl.grid(            row=2, column=0,            columnspan=2)
-        self.custom_var_chkbtn.grid(        row=2, column=3,                          padx=3, pady=10)            
-        self.pattern_var_chkbtn.grid(       row=2, column=4,                          padx=3, pady=10)            
+        self.custom_var_chkbtn.grid(        row=2, column=3,                          padx=3,   pady=10)            
+        self.pattern_var_chkbtn.grid(       row=2, column=4,                          padx=3,   pady=10)            
 
-        self.custom_lbl.grid(               row=3, column=1,            columnspan=2, padx=3, pady=10)
-        self.custom_entry.grid(             row=3, column=3,            columnspan=2, padx=3, pady=10)
+        self.custom_lbl.grid(               row=3, column=1,            columnspan=2, padx=3,   pady=10)
+        self.custom_entry.grid(             row=3, column=3,            columnspan=2, padx=3,   pady=10)
 
-        self.pattern_lbl.grid(              row=4, column=1,            columnspan=2, padx=3, pady=10)
-        self.pattern_entry.grid(            row=4, column=3,            columnspan=1, padx=3, pady=10)
+        self.pattern_lbl.grid(              row=4, column=1,            columnspan=2, padx=3,   pady=10)
+        self.pattern_entry.grid(            row=4, column=3,            columnspan=1, padx=3,   pady=10)
         self.pattern_repeat_spinbox.grid(   row=4, column=4)
 
-        self.generate_var.grid(             row=5, column=4,                          padx=3, pady=10)
+        self.generate_var.grid(             row=5, column=4,                          padx=3,   pady=10)
 
-        self.output_lbl.grid(               row=6, column=1,                          padx=10, pady=40)
-        self.output_textbox.grid(           row=7, column=0, rowspan=5, columnspan=6, padx=3, pady=3)
-        self.output_scrollbar.grid(         row=7, column=6, rowspan=6,               padx=2, pady=3)
+        self.output_lbl.grid(               row=6, column=1,                          padx=10,  pady=40)
+        self.output_textbox.grid(           row=7, column=0, rowspan=5, columnspan=6, padx=3,   pady=3, sticky='nsew')
+        self.output_scrollbar.grid(         row=7, column=6, rowspan=6,               padx=2,   pady=3, sticky='nsew')
 
 
     def placeWidgets(self):
@@ -189,16 +195,33 @@ class VariableGenerator(Frame):
 
 
     def makeVar(self):
+
+        if self.custom_var.get() == 1:
+            self.value = self.custom_entry.get()
+        else:
+            try:
+                # Sets the value of the self.value to the user specified pattern and pattern repitition
+                self.value = self.pattern_entry.get() * int(self.pattern_repeat_spinbox.get())
+            except:
+                # Defaults to 10 repetitions of the pattern if the value in the spinbox is invalid
+                self.value = self.pattern_entry.get() * 10 
+
         # Clearing the output text box
+
         self.output_textbox.delete('1.0', 'end')
 
         # Setting the output text box to the new variable!
-        self.output_textbox.insert('1.0', gen(self))
+        self.pbp_variable = gen(self)
+        self.output_textbox.insert('1.0', self.pbp_variable)
 
+
+    def keybinds(self):
+        self.master.bind('<Return>',lambda event:self.makeVar())
+        # self.master.bind("<esc>", lambda event:self.master.quit)
 
 if __name__ == '__main__':
 
     root = Tk()
-    root.geometry("650x700")
+    root.geometry("650x800")
     app = VariableGenerator(master=root)
     app.mainloop()

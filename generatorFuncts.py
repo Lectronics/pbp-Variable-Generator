@@ -77,7 +77,7 @@ def generateVarFromValue(frameData):
 
     defines["type"]    = frameData.type_spinbox.get() #PUT SOMWTHING HERE
     defines["name"]    = frameData.name_entry.get()
-    defines["value"]   = frameData.custom_entry.get()
+    defines["value"]   = frameData.value
     defines["isArray"] = True
     
     var_name = defines['name']
