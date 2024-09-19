@@ -22,19 +22,19 @@ defines = {
 }
 
 
-def initDefines():
-    defines["type"]    = None #PUT SOMWTHING HERE
-    defines["name"]    = None
-    defines["value"]   = None
-    defines["isArray"] = None
+def initDefines(frameData):
+    defines["type"]    = frameData.type_spinbox.get() #PUT SOMWTHING HERE
+    defines["name"]    = frameData.name_entry.get()
+    defines["value"]   = frameData.custom_value_entry.get()
+    defines["isArray"] = True
 
 
-def preParse(str: hex_string, list: strip_sequence):
+def preParse(hex_string, strip_sequence):
 
     # Setting up the stripped string variable to be able to loop the process multiple times
     stripped_string = hex_string
 
-    for i in strip_sequence
+    for i in strip_sequence:
         # Strip the "0x" off the beginning of the hex number
         split_array = stripped_string.split(i)
 
@@ -42,7 +42,7 @@ def preParse(str: hex_string, list: strip_sequence):
         stripped_string = ''
         for i in split_array: stripped_string += i 
 
-    return stripped string
+    return stripped_string
 
 
 def checkEvenLength(string, defines):
@@ -67,9 +67,9 @@ def splitString(string, defines):
         return arr_str.split(" ")
 
 
-def generateVarFromValue():
+def generateVarFromValue(frameData):
 
-    initDefines()
+    initDefines(frameData)
     
     var_name = defines['var_name']
     var_type = defines["var_type"]
@@ -118,6 +118,6 @@ def binToHexa(n):
     return(hex_num)
 
 
-if __name__ == "__main__":
-    print(generateVariable("0x67 0x3346ed64 0x0917a97c0f7 0x98598 0x3f7f8a")) 
+# if __name__ == "__main__":
+#     print(generateVariable("0x67 0x3346ed64 0x0917a97c0f7 0x98598 0x3f7f8a")) 
 
