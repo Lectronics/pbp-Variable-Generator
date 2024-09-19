@@ -11,21 +11,27 @@ class VariableGenerator(Frame):
         self.createInput()
         self.createOutput()
 
-        self.custom_var = IntVar()
-        self.custom_var_chkbtn = Checkbutton(master, text="Custom", variable=self.custom_var, command=self.command_flip_flop)
+        
 
-        self.pattern_var = IntVar()
-        self.pattern_var_chkbtn = Checkbutton(master, text="Pattern", variable=self.pattern_var, command=self.pattern_flip_flop)
+        self.name_lbl.grid(row=0, column=0, columnspan=2, padx=3, pady=20)
+        self.name_entry.grid(row=0, column=2, columnspan=4, padx=3, pady=20)
 
-        self.name_lbl.grid(row=0, column=0, columnspan=2, padx=3, pady=3)
-        self.name_entry.grid(row=0, column=2, columnspan=4, padx=3, pady=3)
+        self.type_lbl.grid(row=1, column=0, columnspan=2, padx=3, pady=10)
+        self.type_spinbox.grid(row=1, column=2, columnspan=4, padx=3, pady=10)
 
-        self.type_lbl.grid(row=1, column=0, columnspan=2, padx=3, pady=3)
-        self.type_spinbox.grid(row=1, column=2, columnspan=4, padx=3, pady=3)
+        self.var_value_lbl.grid(row=2, column=0, columnspan=2)
+        self.custom_var_chkbtn.grid(row=2, column=3)
+        self.pattern_var_chkbtn.grid(row=2, column=4)
 
-        self.output_lbl.grid(row=6, column=0, columnspan=2, padx=3, pady=3)
-        self.output_textbox.grid(row=7, column=0, rowspan=5, columnspan=6, padx=3, pady=3)
-        self.output_scrollbar.grid(row=7, column=6, rowspan=5, padx=2, pady=3)
+        self.custom_lbl.grid(row=3, column=1, columnspan=2)
+        self.custom_entry.grid(row=3, column=3, columnspan=2)
+
+        self.pattern_lbl.grid(row=4, column=1, columnspan=2)
+        self.pattern_entry.grid(row=4, column=3, columnspan=2)
+
+        self.output_lbl.grid(row=5, column=0, columnspan=2, padx=3, pady=3)
+        self.output_textbox.grid(row=6, column=0, rowspan=5, columnspan=6, padx=3, pady=3)
+        self.output_scrollbar.grid(row=6, column=6, rowspan=5, padx=2, pady=3)
 
 
     def createMenu(self):
@@ -61,11 +67,25 @@ class VariableGenerator(Frame):
     def createInput(self):
         self.name_lbl = Label(self, text="Var Name:")
         self.name_var = StringVar()
-        self.name_entry = Entry(self, textvariable=self.name_var)
+        self.name_entry = Entry(self, textvariable=self.name_var, width=60)
         self.name_var.set("MyVar1")
 
         self.type_lbl = Label(self, text="Var Type: ")
         self.type_spinbox = Spinbox(self, values=('bit', 'byte', 'word', 'long', 'double'), wrap=True)
+
+        self.var_value_lbl = Label(self, text='Variable Value:')
+
+        self.custom_var = IntVar()
+        self.custom_var_chkbtn = Checkbutton(self, text="Custom", variable=self.custom_var, command=self.command_flip_flop)
+        self.custom_lbl = Label(self, text="Custom:")
+        self.custom_entry_var = StringVar()
+        self.custom_entry = Entry(self, textvariable=self.custom_entry_var, width=60)
+
+        self.pattern_var = IntVar()
+        self.pattern_var_chkbtn = Checkbutton(self, text="Pattern", variable=self.pattern_var, command=self.pattern_flip_flop)
+        self.pattern_lbl = Label(self, text="Pattern:")
+        self.pattern_entry_var = StringVar()
+        self.pattern_entry = Entry(self, textvariable=self.pattern_entry_var, width=60)
 
     # def makeEntry(parent, caption, lbl_x, lbl_y, entry_x, entry_y width=None, **options):
     #     Label(parent, text=caption).pack(side=LEFT)
@@ -84,16 +104,17 @@ class VariableGenerator(Frame):
         self.output_string.set("MyVar1 var byte\nMyVar1 = $7f")
 
 
-    def command_flip_flop():
+    def command_flip_flop(self):
         pass
 
 
-    def pattern_flip_flop():
+    def pattern_flip_flop(self):
         pass
 
 
 if __name__ == '__main__':
 
     root = Tk()
+    root.geometry("600x700")
     app = VariableGenerator(master=root)
     app.mainloop()
