@@ -1,3 +1,5 @@
+import re
+
 types = {
     "bit": 1,
     "byte": 2,
@@ -22,17 +24,20 @@ defines = {
 }
 
 
-def initDefines(frameData):
-    defines["type"]    = frameData.type_spinbox.get() #PUT SOMWTHING HERE
-    defines["name"]    = frameData.name_entry.get()
-    defines["value"]   = frameData.custom_value_entry.get()
-    defines["isArray"] = True
-
-
 def preParse(hex_string, strip_sequence):
 
     # Setting up the stripped string variable to be able to loop the process multiple times
     stripped_string = hex_string
+
+    # Added functionality for comments in the value field if you ever wanted to do that... 
+    # Just put your comment in between double hashtags
+
+    # m = re.search('##(.*)##', hex_string)
+    # # get extracted string
+    # ext_string = m.group(1)
+
+    # strip_sequence.insert(0, ext_string)
+
 
     for i in strip_sequence:
         # Strip the "0x" off the beginning of the hex number
@@ -57,37 +62,41 @@ def splitString(string, defines):
 
     # Parsing the string into x digit numbers (different types are different lengths) seperated by spaces
     arr_str = "" # Creating my "Bucket" string
-    for i, val in zip(range(len(var_value)), var_value): # making a zipped list to associate a index with the value that is passed into the for loop
+    for i, val in enumerate(string): # making a zipped list to associate a index with the value that is passed into the for loop
         arr_str += val
         # Depending on the type of the data to be written, the spaces will seperate the data into the appropriate sizes
-        if ((i+1) % types[defines["type"]] == 0) and (i+1 < len(var_value)):
-            arr_str += " " if i != len(var_value) else None
+        if ((i+1) % types[defines["type"]] == 0) and (i+1 < len(string)):
+            arr_str += " " #if i != len(string) else None
         
         # Splitting the string that was just parsed into an array and retuning it
-        return arr_str.split(" ")
+    return arr_str.split(" ")
 
 
 def generateVarFromValue(frameData):
 
-    initDefines(frameData)
+
+    defines["type"]    = frameData.type_spinbox.get() #PUT SOMWTHING HERE
+    defines["name"]    = frameData.name_entry.get()
+    defines["value"]   = frameData.custom_entry.get()
+    defines["isArray"] = True
     
-    var_name = defines['var_name']
-    var_type = defines["var_type"]
-    var_value = defines["var_value"]
+    var_name = defines['name']
+    var_type = defines["type"]
+    var_value = defines["value"]
     # defines["isArray"] = True
 
     variable_values = ""
     value_array = []
 
     # Make a list of characters that should be taken out of the list (There is probably a better way to do this with a nparray)
-    unwanted_characters = ["$", '0x', '%', ' ', '\n', '!', '#']
+    unwanted_characters = ["$", '0x', '%', ' ', ',', '\n', '!', '#']
 
     if defines["isArray"]:
 
         var_value = preParse(var_value, unwanted_characters)
 
         # making sure the value is an even number of digits and zero padding the first if not
-        var_value = checkEvenLength(var_values, defines)
+        var_value = checkEvenLength(var_value, defines)
 
         # Parsing the string into x digit numbers (different types are different lengths) seperated by spaces
         value_array = splitString(var_value, defines)

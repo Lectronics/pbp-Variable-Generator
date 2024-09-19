@@ -1,9 +1,10 @@
 from tkinter import *
 from Menubar import *
 from generatorFuncts import generateVarFromValue as gen
+from GUI_Vars import placeGrid
+from GUI_Vars import custom_entry_initial_value as ceiv
 # from generatorFuncts import generateVarFromValue
 
-placeGrid = [ [100, 200, 300, 400, 500, 600], [70, 140, 210, 280, 350, 420, 490, 560, 630, 700] ]
 
 class VariableGenerator(Frame):
 
@@ -54,21 +55,24 @@ class VariableGenerator(Frame):
         self.name_var.set("MyVar1")
 
         self.type_lbl = Label(self, text="Var Type:", anchor='e')
-        self.type_spinbox = Spinbox(self, values=('bit', 'byte', 'word', 'long', 'double'), wrap=True)
+        self.type_spinbox = Spinbox(self, values=('byte', 'word', 'long', 'double', 'bit'), wrap=True)
 
         self.var_value_lbl = Label(self, text='Variable Value:', anchor='e')
 
         self.custom_var = IntVar()
         self.custom_var_chkbtn = Checkbutton(self, text="Custom", variable=self.custom_var, command=self.command_flip_flop)
+        self.custom_var_chkbtn.select()
         self.custom_lbl = Label(self, text="Custom:", anchor='e')
-        self.custom_entry_var = StringVar()
-        self.custom_entry = Entry(self, textvariable=self.custom_entry_var, width=60)
+        self.custom_entry = Entry(self, width=60)
+        self.custom_entry.insert(0, ceiv)
 
         self.pattern_var = IntVar()
         self.pattern_var_chkbtn = Checkbutton(self, text="Pattern", variable=self.pattern_var, command=self.pattern_flip_flop)
         self.pattern_lbl = Label(self, text="Pattern:", anchor='e')
-        self.pattern_entry_var = StringVar()
-        self.pattern_entry = Entry(self, textvariable=self.pattern_entry_var, width=60)
+        self.pattern_entry = Entry(self, width=35)
+        self.pattern_entry.insert(0, "0x00, 0xff, 0x00, 0x00, 0xff")
+        self.pattern_entry.config(state=DISABLED)
+        self.pattern_repeat_spinbox = Spinbox(self, from_=2, to=256, state=DISABLED)
 
     # def makeEntry(parent, caption, lbl_x, lbl_y, entry_x, entry_y width=None, **options):
     #     Label(parent, text=caption).pack(side=LEFT)
@@ -95,27 +99,28 @@ class VariableGenerator(Frame):
 
     def gridWidgets(self):
 
-        self.name_lbl.grid(row=0, column=1, columnspan=1, padx=20, pady=10)
-        self.name_entry.grid(row=0, column=2, columnspan=3, padx=10, pady=10)
+        self.name_lbl.grid(                 row=0, column=1,            columnspan=1, padx=20, pady=10)
+        self.name_entry.grid(               row=0, column=2,            columnspan=3, padx=10, pady=10)
 
-        self.type_lbl.grid(row=1, column=0, columnspan=2, padx=3, pady=10)
-        self.type_spinbox.grid(row=1, column=0, columnspan=4, padx=146, pady=10)
+        self.type_lbl.grid(                 row=1, column=0,            columnspan=2, padx=3, pady=10)
+        self.type_spinbox.grid(             row=1, column=0,            columnspan=4, padx=146, pady=10)
 
-        self.var_value_lbl.grid(row=2, column=0, columnspan=2)
-        self.custom_var_chkbtn.grid(row=2, column=3)
-        self.pattern_var_chkbtn.grid(row=2, column=4)
+        self.var_value_lbl.grid(            row=2, column=0,            columnspan=2)
+        self.custom_var_chkbtn.grid(        row=2, column=3,                          padx=3, pady=10)            
+        self.pattern_var_chkbtn.grid(       row=2, column=4,                          padx=3, pady=10)            
 
-        self.custom_lbl.grid(row=3, column=1, columnspan=2)
-        self.custom_entry.grid(row=3, column=3, columnspan=2)
+        self.custom_lbl.grid(               row=3, column=1,            columnspan=2, padx=3, pady=10)
+        self.custom_entry.grid(             row=3, column=3,            columnspan=2, padx=3, pady=10)
 
-        self.pattern_lbl.grid(row=4, column=1, columnspan=2)
-        self.pattern_entry.grid(row=4, column=3, columnspan=2)
+        self.pattern_lbl.grid(              row=4, column=1,            columnspan=2, padx=3, pady=10)
+        self.pattern_entry.grid(            row=4, column=3,            columnspan=1, padx=3, pady=10)
+        self.pattern_repeat_spinbox.grid(   row=4, column=4)
 
-        self.generate_var.grid(row=5, column=1)
+        self.generate_var.grid(             row=5, column=4,                          padx=3, pady=10)
 
-        self.output_lbl.grid(row=6, column=1, padx=10, pady=40)
-        self.output_textbox.grid(row=7, column=0, rowspan=5, columnspan=6, padx=3, pady=3)
-        self.output_scrollbar.grid(row=7, column=6, rowspan=6, padx=2, pady=3)
+        self.output_lbl.grid(               row=6, column=1,                          padx=10, pady=40)
+        self.output_textbox.grid(           row=7, column=0, rowspan=5, columnspan=6, padx=3, pady=3)
+        self.output_scrollbar.grid(         row=7, column=6, rowspan=6,               padx=2, pady=3)
 
 
     def placeWidgets(self):
@@ -144,33 +149,56 @@ class VariableGenerator(Frame):
 
 
     def command_flip_flop(self):
-        if command_var.get == 1:
-            command_var_entry.config(state=ENABLED)
-            pattern_var_entry.config(state=DISABLED)
-            pattern_var.deselect()
-        else:
-            command_var_entry.config(state=DISABLED)
-            pattern_var_entry.config(state=ENABLED)
-            pattern_var.select()
+
+        self.pattern_var_chkbtn.toggle()
+        self.setVarEntryState()
+        # if self.custom_var.get == 1:
+        #     self.custom_entry.config(state=DISABLED)
+        #     self.pattern_entry.config(state=NORMAL)
+        #     self.pattern_var_chkbtn.deselect()
+        # else:
+        #     self.custom_entry.config(state=NORMAL)
+        #     self.pattern_entry.config(state=DISABLED)
+        #     self.pattern_var_chkbtn.select()
 
 
     def pattern_flip_flop(self):
-        if pattern_var.get == 1:
-            command_var_entry.config(state=DISABLED)
-            pattern_var_entry.config(state=ENABLED)
-            command_var.select()
+
+        self.custom_var_chkbtn.toggle()
+        self.setVarEntryState()
+        # if self.pattern_var.get == 1:
+        #     self.custom_entry.config(state=DISABLED)
+        #     self.pattern_entry.config(state=NORMAL)
+        #     self.custom_var_chkbtn.deselect()
+        # else:
+        #     self.custom_entry.config(state=NORMAL)
+        #     self.pattern_entry.config(state=DISABLED)
+        #     self.custom_var_chkbtn.select()
+
+    def setVarEntryState(self):
+
+        # Sets the states of the variable entry boxes depending on which of the checkboxes is checked
+        if self.custom_var.get() == 1:
+            self.custom_entry.config(state=NORMAL)
+            self.pattern_entry.config(state=DISABLED)
+            self.pattern_repeat_spinbox.config(state=DISABLED)
         else:
-            command_var_entry.config(state=ENABLED)
-            pattern_var_entry.config(state=DISABLED)
-            command_var.deselect()
+            self.custom_entry.config(state=DISABLED)
+            self.pattern_entry.config(state=NORMAL)
+            self.pattern_repeat_spinbox.config(state=NORMAL)
 
 
     def makeVar(self):
-        gen(self)
+        # Clearing the output text box
+        self.output_textbox.delete('1.0', 'end')
+
+        # Setting the output text box to the new variable!
+        self.output_textbox.insert('1.0', gen(self))
+
 
 if __name__ == '__main__':
 
     root = Tk()
-    root.geometry("600x700")
+    root.geometry("650x700")
     app = VariableGenerator(master=root)
     app.mainloop()
