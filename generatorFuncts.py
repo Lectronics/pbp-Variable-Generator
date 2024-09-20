@@ -110,7 +110,7 @@ def generateVarFromValue(frameData):
         variable_values = f"{var_name} = ${var_value}\n"
 
 
-    variable_declaration = f"{var_name} {var_type}{f'[{len(value_array)}]' if len(value_array) > 1 else ''}\n"
+    variable_declaration = f"{var_name} var {var_type}{f'[{len(value_array)}]' if len(value_array) > 1 else ''}\n"
 
     output = variable_declaration + variable_values
 

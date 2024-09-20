@@ -8,7 +8,6 @@ def saveVariable(variable_text):
 
     # with open(f"{filename}.txt", "x") as file:
         
-
     with asksaveasfile() as file:
         file.write(variable_text)
 
