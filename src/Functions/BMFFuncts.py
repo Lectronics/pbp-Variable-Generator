@@ -1,0 +1,3 @@
+
+def fontToHex(font):
+    pass
