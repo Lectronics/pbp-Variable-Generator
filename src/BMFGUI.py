@@ -76,6 +76,7 @@ class BMF(Frame):
         self.makeBtns(self.rows, self.columns)
         self.assignCommands()
         self.gridButtons()
+        # self.updateBtnBuffer()
         self.navigationButtons()
         self.operationButtons()
         self.indexLabel()
@@ -139,9 +140,12 @@ class BMF(Frame):
 
     def btnColor(self, event):
         try:
-            index = self.getButtonIndexes(int(str(event.widget)[30:]))
+            index = self.getButtonIndexes(int(str(event.widget)[-2:]))
         except ValueError:
-            index = [0, 0]
+            try:
+                index = self.getButtonIndexes(int(str(event.widget)[-1]))
+            except ValueError:
+                index = [0, 0]
 
         if self.font[self.font[0][0]][index[0]][index[1]] == 0:
             event.widget.config(bg='black', fg='white', highlightcolor='black', activeforeground='black', highlightbackground='black')
@@ -242,7 +246,13 @@ class BMF(Frame):
 
     def goNext(self):
 
-        self.char_index[self.font[0][0] - 1] = self.char_entry.get() 
+        if self.font[0][0] + 1 > len(self.char_index):
+            self.char_index.append('??')
+            self.char_index[self.font[0][0] - 1] = self.char_entry.get()
+
+        else:
+             self.char_index[self.font[0][0] - 1] = self.char_entry.get()
+
 
         if self.font[0][0] + 2 > len(self.font):
            
