@@ -10,16 +10,19 @@ class BMF(Frame):
         self.master = master
         self.pack()
 
+        # self.fontOptions()
+
         self.btn_frame = Frame(self)
         self.btn_frame.pack()
 
         self.btn_array = []
         # self.btn_lookup = []
-        self.font = [1] # Making the font array that as the zero index keeps track of what character is being displayed/changed
 
         self.invisible_image = PhotoImage(width=1, height=1)
         self.rows = 8
         self.columns = 5
+
+        self.font = [[1, 0, self.rows, self.columns]] # Making the font array that as the zero index keeps track of what character is being displayed/changed
 
         self.makeBtns(self.rows, self.columns)
         self.assignCommands()
@@ -85,21 +88,21 @@ class BMF(Frame):
 
 
     def btnColor(self, event):
-        # try:
-        index = self.getButtonIndexes(int(str(event.widget)[30:]))
-        # except ValueError:
-        #     index = [0, 0]
+        try:
+            index = self.getButtonIndexes(int(str(event.widget)[30:]))
+        except ValueError:
+            index = [0, 0]
 
-        if self.font[self.font[0]][index[0]][index[1]] == 0:
+        if self.font[self.font[0][0]][index[0]][index[1]] == 0:
             event.widget.config(bg='black', fg='white', highlightcolor='black', activeforeground='black', highlightbackground='black')
             # event.widget.config(theme='alt')
-            self.font[self.font[0]][index[0]][index[1]] = 1
+            self.font[self.font[0][0]][index[0]][index[1]] = 1
         else: 
             event.widget.config(bg='white', fg='black', highlightcolor='white', activeforeground='white', highlightbackground='white')
             # event.widget.config(theme='classic')
-            self.font[self.font[0]][index[0]][index[1]] = 0
+            self.font[self.font[0][0]][index[0]][index[1]] = 0
 
-        print(self.font[self.font[0]])
+        print(self.font[self.font[0][0]])
 
 
 
@@ -108,7 +111,7 @@ class BMF(Frame):
             for btn in arr:
                 btn.config(bg='white', fg='black', highlightcolor='white', activeforeground='white', highlightbackground='white')
         
-        for row in self.font[self.font[0]]:
+        for row in self.font[self.font[0][0]]:
             for i, j in enumerate(row):
                 row[i] = 0
 
@@ -119,13 +122,13 @@ class BMF(Frame):
             for btn in arr:
                 btn.config(bg='black', fg='white', highlightcolor='black', activeforeground='black', highlightbackground='black')
 
-        for row in self.font[self.font[0]]:
+        for row in self.font[self.font[0][0]]:
             for i in enumerate(row):
                 row[i] = 1
 
 
     def getBitmap(self):
-        return self.font[self.font[0]]
+        return self.font[self.font[0][0]]
 
 
     def loadBitmap(self, index):
@@ -158,19 +161,27 @@ class BMF(Frame):
         self.master.bind("Control-s", self.saveCharacters)
         self.save_btn.pack(pady=5)
 
+
+    def fontOptions(self):
+
+        self.options_lbl = Label(self, text="Number of Sizes:").pack(side='left')
+        self.options_entry = Entry(self, width=3).pack(side='left')
+
+        self.scale_lbl = Label(self, text="Font Scale").pack(side='left')
+        self.scale_entry = Entry(self, width=3).pack(side='left')
     
     def indexLabel(self):
 
-        self.index_lbl = Label(self, text=f"Character {self.font[0]} of {len(self.font) - 1}")
+        self.index_lbl = Label(self, text=f"Character {self.font[0][0]} of {len(self.font) - 1}")
         self.index_lbl.pack(pady=10)
 
     
     def updateLabel(self):
-        self.index_lbl.config(text=f"Character {self.font[0]} of {len(self.font) - 1}")
+        self.index_lbl.config(text=f"Character {self.font[0][0]} of {len(self.font) - 1}")
 
 
     def goNext(self):
-        if self.font[0] + 2 > len(self.font):
+        if self.font[0][0] + 2 > len(self.font):
            
             self.makeNewChar()
             # self.font.append([])
@@ -179,24 +190,24 @@ class BMF(Frame):
             self.updateLabel()
             print(self.font)
         else:
-            if self.font[0] <= 0:
+            if self.font[0][0] <= 0:
                 pass
 
-            self.font[0] += 1
+            self.font[0][0] += 1
 
-            self.loadBitmap(self.font[0])
+            self.loadBitmap(self.font[0][0])
             self.updateLabel()
 
 
     def goBack(self):
 
-        if self.font[0] <= 1:
+        if self.font[0][0] <= 1:
             pass
 
         else:
-            self.font[0] -= 1
+            self.font[0][0] -= 1
 
-            self.loadBitmap(self.font[0])
+            self.loadBitmap(self.font[0][0])
             self.updateLabel()
 
 
@@ -208,19 +219,22 @@ class BMF(Frame):
 
         self.font.append([]) # Making the new empty array to store the new character
 
-        self.font[0] = len(self.font) - 1
+        self.font[0][0] = len(self.font) - 1 # Setting the character index to the new character
+        self.font[0][1] += 1 # Adding 1 to the font length
 
         for i in range(self.rows):
-            self.font[self.font[0]].append([])
+            self.font[self.font[0][0]].append([])
             for c in range(self.columns):
-                self.font[self.font[0]][i].append(0)
+                self.font[self.font[0][0]][i].append(0)
 
 
     def saveCharacters(self):
 
         with asksaveasfile() as f:
             f.write(str(self.font))
+            f.write("/n" + str(scaleFont(self.font)))
 
+    
 
 if __name__ == '__main__':
     root = Tk()

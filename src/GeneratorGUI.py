@@ -1,5 +1,5 @@
 from tkinter import *
-from Menubar import *
+import Menubar
 from generatorFuncts import generateVarFromValue as gen
 from GUI_Vars import placeGrid
 from GUI_Vars import custom_entry_initial_value as ceiv
@@ -23,7 +23,7 @@ class VariableGenerator(Frame):
         self.pbp_variable = self.output_textbox.get('1.0')
         self.gridWidgets()
         self.makeVar()
-        self.keybinds()
+        # self.keybinds()
 
 
     def createMenu(self):
@@ -32,19 +32,26 @@ class VariableGenerator(Frame):
 
         # Creating the file dropdown menu
         self.root.filemenu = Menu(self.root.menubar, tearoff=0)
-        self.root.filemenu.add_command(label="Save", command= lambda: saveVariable(self.pbp_variable))
-        self.root.filemenu.add_command(label="Write", command=lambda: writeVar(self.pbp_variable))
+        self.root.filemenu.add_command(label="Save", command= lambda: Menubar.saveVariable(self.pbp_variable))
+        self.root.filemenu.add_command(label="Write", command=lambda: Menubar.writeVar(self.pbp_variable))
+        # self.root.filemenu.add_command(label="Open", command=lambda: Menubar.openVar(self.pbp_variable))
+
+        self.root.openoptions = Menu(self.root.filemenu, tearoff=0)
+        self.root.openoptions.add_command(label="Open Variable", command=Menubar.openVar())
+        self.root.openoptions.add_command(label="Open Font", command=Menubar.openFont())
+
+        self.root.filemenu.add_cascade(label="Open",menu=self.root.openoptions)
 
         # Creating the Edit Dropdown menu
         self.root.editmenu = Menu(self.root.menubar, tearoff=0)
         # editmenu.add_command(label="Cut", command=hello) # Decided not to use the CUT option
-        self.root.editmenu.add_command(label="Copy", command=copyVarToClipboard)
-        self.root.editmenu.add_command(label="Paste", command=pasteVarToVarbox)
+        self.root.editmenu.add_command(label="Copy", command=Menubar.copyVarToClipboard)
+        self.root.editmenu.add_command(label="Paste", command=Menubar.pasteVarToVarbox)
 
         # Creating the Help Menu which will have an about tab and a help tab
         #   The help tab wil bring up a popUp that walks you through how to use the generator
         self.root.helpmenu = Menu(self.root.menubar, tearoff=0)
-        self.root.helpmenu.add_command(label="About", command=popUpHelp)
+        self.root.helpmenu.add_command(label="About", command=Menubar.popUpHelp)
 
         # Adding the subMenus made above to the main menu (menubar)
         self.root.menubar.add_cascade(label="File", menu=self.root.filemenu)
@@ -234,6 +241,20 @@ class VariableGenerator(Frame):
     def keybinds(self):
         self.master.bind('<Return>',lambda event:self.makeVar())
         # self.master.bind("<esc>", lambda event:self.master.quit)
+
+
+    def openVar(self):
+
+        with askopenfilename(filetypes = [("Variable Files", ".pyVar")]) as file:
+            self.opened_variable = file.read 
+
+    
+    def openFont(self):
+
+        with askopenfilename(filetypes = [("Font Files", ".font")]) as file:
+            self.opened_font = file.read 
+
+            
 
 if __name__ == '__main__':
 

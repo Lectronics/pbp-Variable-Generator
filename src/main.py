@@ -1,7 +1,8 @@
 import GeneratorGUI as gui
-import BMF_Tab
+# import BMF_Tab
+
 import BMF_GUI
-import Menubar
+
 from tkinter import Tk, ttk
 
 root = Tk()
