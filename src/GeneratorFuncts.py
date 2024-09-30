@@ -1,4 +1,4 @@
-import re
+import struct
 
 types = {
     "bit": 1,
@@ -24,7 +24,7 @@ defines = {
 }
 
 
-def preParse(hex_string, strip_sequence):
+def preParse(hex_string, strip_sequence, replace_sequence):
 
     # Setting up the stripped string variable to be able to loop the process multiple times
     stripped_string = hex_string
@@ -40,12 +40,24 @@ def preParse(hex_string, strip_sequence):
 
 
     for i in strip_sequence:
-        # Strip the "0x" off the beginning of the hex number
+        # Strip i off the beginning of the hex number
         split_array = stripped_string.split(i)
 
         # Turn step_1 back into a string
         stripped_string = ''
         for i in split_array: stripped_string += i 
+
+
+    
+    # var_as_int = int(stripped_string, 16)
+    # var_as_bytes = struct.pack('>N', var_as_int)
+
+# Turning the stripped string into a byte string...
+    # for i in replace_sequence:
+    #     replaced_string = b''
+    #     for replace_this, with_this in i:
+    #         replaced_string = stripped_string.replace(replace_this, with_this)
+        
 
     return stripped_string
 
@@ -72,12 +84,12 @@ def splitString(string, defines):
     return arr_str.split(" ")
 
 
-def generateVarFromValue(frameData):
+def generateVarFromValue(var_type, name, value):
 
 
-    defines["type"]    = frameData.type_spinbox.get() #PUT SOMWTHING HERE
-    defines["name"]    = frameData.name_entry.get()
-    defines["value"]   = frameData.value
+    defines["type"]    = var_type #PUT SOMWTHING HERE
+    defines["name"]    = name
+    defines["value"]   = value
     defines["isArray"] = True
     
     var_name = defines['name']
@@ -89,11 +101,12 @@ def generateVarFromValue(frameData):
     value_array = []
 
     # Make a list of characters that should be taken out of the list (There is probably a better way to do this with a nparray)
-    unwanted_characters = ["$", '0x', '%', ' ', ',', '\n', '!', '#']
+    unwanted_characters = ["$", "0x", '%', ' ', ',', '\n', '!', '#']
+    replace_characters = [['0x', '\\x']]
 
     if defines["isArray"]:
 
-        var_value = preParse(var_value, unwanted_characters)
+        var_value = preParse(var_value, unwanted_characters, replace_characters)
 
         # making sure the value is an even number of digits and zero padding the first if not
         var_value = checkEvenLength(var_value, defines)
@@ -127,10 +140,60 @@ def binToHexa(n):
     return(hex_num)
 
 
-def openFont(font):
+# def openFont(font):
+    
+#     with askopenfilename(filetypes = [("Font Files", ".font")]) as file:
+        
+#         def generateVarFromValue(frameData):
+
+
+#         defines["type"]    = frameData.type_spinbox.get() #PUT SOMWTHING HERE
+#         defines["name"]    = frameData.name_entry.get()
+#         defines["value"]   = frameData.value
+#         defines["isArray"] = True
+
+#         var_name = defines['name']
+#         var_type = defines["type"]
+#         var_value = defines["value"]
+#         # defines["isArray"] = True
+
+#         variable_values = ""
+#         value_array = []
+
+#         # Make a list of characters that should be taken out of the list (There is probably a better way to do this with a nparray)
+#         unwanted_characters = ["$", "0x", '%', ' ', ',', '0x', '!', '#']
+#         replace_characters = [['0x', '\\x']]
+
+#         if defines["isArray"]:
+
+#             var_value = preParse(var_value, unwanted_characters, replace_characters)
+
+#             # making sure the value is an even number of digits and zero padding the first if not
+#             var_value = checkEvenLength(var_value, defines)
+
+#             # Parsing the string into x digit numbers (different types are different lengths) seperated by spaces
+#             value_array = splitString(var_value, defines)
+
+#             # Making a define of each array index with its specified value in value_array
+#             for i, val in zip(range(len(value_array)), value_array):
+#                 variable_values += f"{var_name}[{i}] = {prefixes[var_type]}{val}\n"
+
+
+#         else:
+#             variable_values = f"{var_name} = ${var_value}\n"
+
+
+#         variable_declaration = f"{var_name} var {var_type}{f'[{len(value_array)}]' if len(value_array) > 1 else ''}\n"
+
+#         output = variable_declaration + variable_values
+
+#         return output
+
+def parseFont(font_from_file):
     pass
 
 
-# if __name__ == "__main__":
-#     print(generateVariable("0x67 0x3346ed64 0x0917a97c0f7 0x98598 0x3f7f8a")) 
+
+if __name__ == "__main__":
+    print(generateVarFromValue("0x67 0x3346ed64 0x0917a97c0f7 0x98598 0x3f7f8a")) 
 

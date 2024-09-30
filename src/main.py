@@ -1,7 +1,7 @@
 import GeneratorGUI as gui
 # import BMF_Tab
 
-import BMF_GUI
+import BMFGUI
 
 from tkinter import Tk, ttk
 
@@ -13,7 +13,7 @@ tabbed_pages = ttk.Notebook(root)
 variable_tab = gui.VariableGenerator(master=tabbed_pages, root=root)
 
 # bmf_tab = BMF_Tab.BMFTab(master=tabbed_pages)
-bmf_gui = BMF_GUI.BMF(master=tabbed_pages)
+bmf_gui = BMFGUI.BMF(master=tabbed_pages)
 # bmf_tab.child = bmf_gui
 
 tabbed_pages.add(variable_tab, text="Variable Generator")

@@ -27,17 +27,24 @@ class BMF(Frame):
         self.rows_entry.insert(0, "8")
         self.columns_entry.insert(0, "5")
 
+        self.name_lbl = Label(self, text='Font Name: ')
+        self.name_entry = Entry(self, width=12)
+        self.name_entry.insert(0, "Font")
+
         self.start_btn = Button(self, text='Start!', command=self.userSetup)
 
-        self.start_lbl.grid(row=1, column=1)
+        self.start_lbl.grid(row=1, column=1, columnspan=2)
 
-        self.rows_lbl.grid(row=2, column=2)
-        self.rows_entry.grid(row=2, column=3)
+        self.rows_lbl.grid(row=2, column=3)
+        self.rows_entry.grid(row=2, column=4, padx=20)
 
-        self.columns_lbl.grid(row=2, column=4)
-        self.columns_entry.grid(row=2, column=5)
+        self.columns_lbl.grid(row=2, column=5)
+        self.columns_entry.grid(row=2, column=6, padx=20)
 
-        self.start_btn.grid(row=2, column=6, padx=20)
+        self.name_lbl.grid(row=2, column=7)
+        self.name_entry.grid(row=2, column=8)
+
+        self.start_btn.grid(row=3, column=7, padx=20)
 
 
     def userSetup(self):
@@ -46,18 +53,23 @@ class BMF(Frame):
         try:
             self.btn_frame.destroy()
         except:
-            print('ha')
+            print('')
 
-        # self.start_btn.config(state=DISABLED)
+        self.start_btn.config(text='Re-Start!')
 
         self.btn_frame = Frame(self)
-        self.btn_frame.grid(row=3, column=1, columnspan=6, padx=40)
+        self.btn_frame.grid(row=4, column=1, columnspan=6, padx=40, sticky='nsew')
 
         self.btn_array = []
         # self.btn_lookup = []
 
         self.rows = int(self.rows_entry.get())
         self.columns = int(self.columns_entry.get())
+
+
+        self.char_index = []
+        for i in 'abcdefghijklmnopqrstuvwxyz':
+            self.char_index.append(i)
 
         self.font = [[1, 0, self.rows, self.columns]] # Making the font array that as the zero index keeps metadata in the form: []
 
@@ -140,7 +152,7 @@ class BMF(Frame):
             # event.widget.config(theme='classic')
             self.font[self.font[0][0]][index[0]][index[1]] = 0
 
-        print(self.font[self.font[0][0]])
+        # print(self.font[self.font[0][0]])
 
 
 
@@ -182,22 +194,22 @@ class BMF(Frame):
 
         self.back_btn = Button(self, text='Back', command=self.goBack)
         self.master.bind('<Left>', self.goBack)
-        self.back_btn.grid(row=4, column=1)
+        self.back_btn.grid(row=5, column=1)
 
         self.next_btn = Button(self, text='Next', command=self.goNext)
         self.master.bind('<Right>', self.goNext)
-        self.next_btn.grid(row=4, column=6)
+        self.next_btn.grid(row=5, column=6)
 
     
     def operationButtons(self):
 
         self.clear_btn = Button(self, text='Clear', command=self.allWhite)
         self.master.bind("<Control-c>", self.allWhite)
-        self.clear_btn.grid(row=4, column=3)
+        self.clear_btn.grid(row=5, column=3)
 
         self.save_btn = Button(self, text='Save', command=self.saveCharacters)
         self.master.bind("Control-s", self.saveCharacters)
-        self.save_btn.grid(row=4, column=4)
+        self.save_btn.grid(row=5, column=4)
 
 
     def fontOptions(self):
@@ -211,14 +223,27 @@ class BMF(Frame):
     def indexLabel(self):
 
         self.index_lbl = Label(self, text=f"Character {self.font[0][0]} of {len(self.font) - 1}")
-        self.index_lbl.grid(row=5, column=6, pady=10)
+        self.index_lbl.grid(row=7, column=7, pady=10)
+
+        self.char_lbl = Label(self, text="Character Name: ")
+        self.char_lbl.grid(row=6, column=6)
+
+        self.char_entry = Entry(self, width=12)
+        self.char_entry.insert(0, self.char_index[self.font[0][0] - 1])
+        self.char_entry.grid(row=6, column=7)
 
     
     def updateLabel(self):
         self.index_lbl.config(text=f"Character {self.font[0][0]} of {len(self.font) - 1}")
 
+        self.char_entry.delete(0, END)
+        self.char_entry.insert(0, f'{self.char_index[self.font[0][0] - 1]}')
+
 
     def goNext(self):
+
+        self.char_index[self.font[0][0] - 1] = self.char_entry.get() 
+
         if self.font[0][0] + 2 > len(self.font):
            
             self.makeNewChar()
@@ -226,7 +251,7 @@ class BMF(Frame):
             # self.font[-1] = self.btn_lookup # Appending the 2D array of the black and white pixels that is currently on the screen.
             self.allWhite() # Making all the buttons in the child class BMF_GUI White.
             self.updateLabel()
-            print(self.font)
+            # print(self.font)
         else:
             if self.font[0][0] <= 0:
                 pass
@@ -238,6 +263,8 @@ class BMF(Frame):
 
 
     def goBack(self):
+
+        self.char_index[self.font[0][0] - 1] = self.char_entry.get() 
 
         if self.font[0][0] <= 1:
             pass
@@ -258,7 +285,7 @@ class BMF(Frame):
         self.font.append([]) # Making the new empty array to store the new character
 
         self.font[0][0] = len(self.font) - 1 # Setting the character index to the new character
-        self.font[0][1] += 1 # Adding 1 to the font length
+        self.font[0][1] = len(self.font) - 1# Adding 1 to the font length
 
         for i in range(self.rows):
             self.font[self.font[0][0]].append([])
@@ -268,9 +295,12 @@ class BMF(Frame):
 
     def saveCharacters(self):
 
+        self.font[0].append(self.name_entry.get())
+
         with asksaveasfile(filetypes = [("Font Files", ".font")]) as f:
-            f.write(str(self.font) + "\n")
-            f.write(str(fontToHex(self.font)))
+            f.write("Font as List: \n" + str(self.font) + "\n")
+            f.write("Font as Hex: \n" + str(fontToHex(self.font))+ '\n')
+            f.write("Char Index: \n" + str(self.char_index[:self.font[0][1]]))
 
     
 

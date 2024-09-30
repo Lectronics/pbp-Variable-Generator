@@ -1,9 +1,12 @@
 from tkinter import *
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfile
+import struct
+import json
 import Menubar
-from generatorFuncts import generateVarFromValue as gen
+from GeneratorFuncts import generateVarFromValue as gen
 from GUI_Vars import placeGrid
 from GUI_Vars import custom_entry_initial_value as ceiv
+from BMFFuncts import fontToHex
 # from generatorFuncts import generateVarFromValue
 
 
@@ -235,7 +238,7 @@ class VariableGenerator(Frame):
         self.output_textbox.delete('1.0', 'end')
 
         # Setting the output text box to the new variable!
-        self.pbp_variable = gen(self)
+        self.pbp_variable = gen(self.type_spinbox.get(), self.name_entry.get(), self.value)
         self.output_textbox.insert('1.0', self.pbp_variable)
 
 
@@ -246,27 +249,65 @@ class VariableGenerator(Frame):
 
     def openVar(self):
 
-        pass
+        # pass
 
-        with askopenfilename(filetypes = [("Variable Files", ".pyVar")]) as file:
-            self.value = string(file.read) 
+        with askopenfile(filetypes=[("Variable Files", ".pyVar")]) as file:
+            self.value = file.read()
 
             self.output_textbox.delete('1.0', 'end')
 
             # Setting the output text box to the new variable!
-            self.pbp_variable = gen(self)
-            self.output_textbox.insert('1.0', self.pbp_variable)
+            # self.pbp_variable = gen(self)
+            self.output_textbox.insert('1.0', self.value)
 
     
     def openFont(self):
 
-        pass
+        with askopenfile(filetypes=[("Font Files", ".font")]) as file:
 
-        with askopenfilename(filetypes = [("Font Files", ".font")]) as file:
-            pass
+            font = file.read().split('\n')
+            # print(font[1])
+            font_letters = eval(font[1])
+            font_letters = fontToHex(font_letters)
+            # print(type(font_letters))
+            font_keys = eval(font[5])
+            font = []
+
+            # lowLevelFont = fontToHex(font_letters)
+            # print(lowLevelFont)
+
+            for letter in font_letters:
+                hex_letter = struct.unpack('>sssss', letter)
+                # print(tuple1)
+
+                string_letter = '' # String letter is still a hex-encoded bitmat, just in the python format of a string as opposed to a byte string
+                for byte_ in hex_letter:
+                    # Formatting the byte string back into a usable string using struct.unpack. 
+                    # The if statement merely zero-pads the single-digit hex characters that are returned by the format() function
+                    string_letter += str(format(struct.unpack('>B', byte_)[0], 'X')) if len(str(format(struct.unpack('>B', byte_)[0], 'X'))) > 1 else "0" + str(format(struct.unpack('>B', byte_)[0], 'X'))
+
+                font.append(string_letter)
+
             
+            self.output_textbox.delete('1.0', 'end')
+
+            # Setting the output text box to the new variable!
+            self.pbp_variable = self.fontGen(font, font_keys)
+            # print(self.pbp_variable)
+            self.output_textbox.insert('1.0', self.pbp_variable)
+            # print(stringFont)
+            
+    
+
+    def fontGen(self, font, keys):
+        output = ''
+
+        for i, key in enumerate(keys):
+            output +=  gen('byte', key, font[i]) + '\n\n'
 
 
+        return output
+        
 
 if __name__ == '__main__':
 

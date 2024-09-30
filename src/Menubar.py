@@ -8,7 +8,7 @@ def saveVariable(variable_text):
 
     # with open(f"{filename}.txt", "x") as file:
         
-    with asksaveasfile(filetypes = [("Font Files", ".font")]) as file:
+    with asksaveasfile(filetypes = [("Variable Files", ".pyVar")]) as file:
         file.write(variable_text)
 
 
