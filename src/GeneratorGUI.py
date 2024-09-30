@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter.filedialog import askopenfilename
 import Menubar
 from generatorFuncts import generateVarFromValue as gen
 from GUI_Vars import placeGrid
@@ -37,8 +38,8 @@ class VariableGenerator(Frame):
         # self.root.filemenu.add_command(label="Open", command=lambda: Menubar.openVar(self.pbp_variable))
 
         self.root.openoptions = Menu(self.root.filemenu, tearoff=0)
-        self.root.openoptions.add_command(label="Open Variable", command=Menubar.openVar())
-        self.root.openoptions.add_command(label="Open Font", command=Menubar.openFont())
+        self.root.openoptions.add_command(label="Open Variable", command=self.openVar)
+        self.root.openoptions.add_command(label="Open Font", command=self.openFont)
 
         self.root.filemenu.add_cascade(label="Open",menu=self.root.openoptions)
 
@@ -245,16 +246,27 @@ class VariableGenerator(Frame):
 
     def openVar(self):
 
+        pass
+
         with askopenfilename(filetypes = [("Variable Files", ".pyVar")]) as file:
-            self.opened_variable = file.read 
+            self.value = string(file.read) 
+
+            self.output_textbox.delete('1.0', 'end')
+
+            # Setting the output text box to the new variable!
+            self.pbp_variable = gen(self)
+            self.output_textbox.insert('1.0', self.pbp_variable)
 
     
     def openFont(self):
 
-        with askopenfilename(filetypes = [("Font Files", ".font")]) as file:
-            self.opened_font = file.read 
+        pass
 
+        with askopenfilename(filetypes = [("Font Files", ".font")]) as file:
+            pass
             
+
+
 
 if __name__ == '__main__':
 

@@ -10,19 +10,56 @@ class BMF(Frame):
         self.master = master
         self.pack()
 
-        # self.fontOptions()
+        self.invisible_image = PhotoImage(width=1, height=1)
+
+        self.startGUI()
+        
+
+
+    def startGUI(self):
+
+        self.start_lbl = Label(self, text="Select Your Font Size: ")
+        self.rows_lbl = Label(self, text='Rows:')
+        self.columns_lbl = Label(self, text='Columns:')
+
+        self.rows_entry = Entry(self, width=2)
+        self.columns_entry = Entry(self, width=2)
+        self.rows_entry.insert(0, "8")
+        self.columns_entry.insert(0, "5")
+
+        self.start_btn = Button(self, text='Start!', command=self.userSetup)
+
+        self.start_lbl.grid(row=1, column=1)
+
+        self.rows_lbl.grid(row=2, column=2)
+        self.rows_entry.grid(row=2, column=3)
+
+        self.columns_lbl.grid(row=2, column=4)
+        self.columns_entry.grid(row=2, column=5)
+
+        self.start_btn.grid(row=2, column=6, padx=20)
+
+
+    def userSetup(self):
+
+        # self.fontOptions() # These have been commented out because they are at this moment useless and use the pack manager
+        try:
+            self.btn_frame.destroy()
+        except:
+            print('ha')
+
+        # self.start_btn.config(state=DISABLED)
 
         self.btn_frame = Frame(self)
-        self.btn_frame.pack()
+        self.btn_frame.grid(row=3, column=1, columnspan=6, padx=40)
 
         self.btn_array = []
         # self.btn_lookup = []
 
-        self.invisible_image = PhotoImage(width=1, height=1)
-        self.rows = 8
-        self.columns = 5
+        self.rows = int(self.rows_entry.get())
+        self.columns = int(self.columns_entry.get())
 
-        self.font = [[1, 0, self.rows, self.columns]] # Making the font array that as the zero index keeps track of what character is being displayed/changed
+        self.font = [[1, 0, self.rows, self.columns]] # Making the font array that as the zero index keeps metadata in the form: []
 
         self.makeBtns(self.rows, self.columns)
         self.assignCommands()
@@ -30,6 +67,7 @@ class BMF(Frame):
         self.navigationButtons()
         self.operationButtons()
         self.indexLabel()
+
 
     
     def makeBtns(self, rows, columns):
@@ -144,22 +182,22 @@ class BMF(Frame):
 
         self.back_btn = Button(self, text='Back', command=self.goBack)
         self.master.bind('<Left>', self.goBack)
-        self.back_btn.pack(side='left')
+        self.back_btn.grid(row=4, column=1)
 
         self.next_btn = Button(self, text='Next', command=self.goNext)
         self.master.bind('<Right>', self.goNext)
-        self.next_btn.pack(side='right')
+        self.next_btn.grid(row=4, column=6)
 
     
     def operationButtons(self):
 
         self.clear_btn = Button(self, text='Clear', command=self.allWhite)
         self.master.bind("<Control-c>", self.allWhite)
-        self.clear_btn.pack(pady=5)
+        self.clear_btn.grid(row=4, column=3)
 
         self.save_btn = Button(self, text='Save', command=self.saveCharacters)
         self.master.bind("Control-s", self.saveCharacters)
-        self.save_btn.pack(pady=5)
+        self.save_btn.grid(row=4, column=4)
 
 
     def fontOptions(self):
@@ -173,7 +211,7 @@ class BMF(Frame):
     def indexLabel(self):
 
         self.index_lbl = Label(self, text=f"Character {self.font[0][0]} of {len(self.font) - 1}")
-        self.index_lbl.pack(pady=10)
+        self.index_lbl.grid(row=5, column=6, pady=10)
 
     
     def updateLabel(self):
@@ -230,9 +268,9 @@ class BMF(Frame):
 
     def saveCharacters(self):
 
-        with asksaveasfile() as f:
-            f.write(str(self.font))
-            f.write("/n" + str(scaleFont(self.font)))
+        with asksaveasfile(filetypes = [("Font Files", ".font")]) as f:
+            f.write(str(self.font) + "\n")
+            f.write(str(fontToHex(self.font)))
 
     
 

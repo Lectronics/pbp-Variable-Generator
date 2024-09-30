@@ -127,6 +127,10 @@ def binToHexa(n):
     return(hex_num)
 
 
+def openFont(font):
+    pass
+
+
 # if __name__ == "__main__":
 #     print(generateVariable("0x67 0x3346ed64 0x0917a97c0f7 0x98598 0x3f7f8a")) 
 
