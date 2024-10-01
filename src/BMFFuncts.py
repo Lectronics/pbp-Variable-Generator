@@ -107,12 +107,15 @@ def fontToHex(font, write_direction='v', size='byte') -> list:
             # letters[index].append(pack_string) # Assigning a variable to use in the struct.pack function. <PASSED AS METADATA> because the 's' requires a byte
 
             for i in range(metadata[3]): # Iterating over the number of columns in the letter so that each 
-                string = ''
-                for bit in letter[:, i]: # using numpy indexing magic to iterate over a COLUMN of data from a 2-Dimensional Array
-                    string += str(bit)   # Adding a bit from what ever column is being iterated over
 
-                # letters[index].append(struct.pack('>B', int(string, 2)))
-                letters[index].append(struct.pack('>B', int(string, 2)))
+                for cycle in range(len(letter[:, i]) / size_lookup[size]): # Only appending 8 bits to each byte string by splitting the letter into "cycles"
+
+                    string = ''
+                    for bit in letter[:, i]: # using numpy indexing magic to iterate over a COLUMN of data from a 2-Dimensional Array
+                        string += str(bit)   # Adding a bit from what ever column is being iterated over
+            
+                    # letters[index].append(struct.pack('>B', int(string, 2)))
+                    letters[index].append(struct.pack('>B', int(string, 2)))
 
 
         for i, letter in enumerate(letters[1:]):
