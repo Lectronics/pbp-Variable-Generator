@@ -8,7 +8,7 @@ def saveVariable(variable_text):
 
     # with open(f"{filename}.txt", "x") as file:
         
-    with asksaveasfile(filetypes = [("Variable Files", ".pyVar")]) as file:
+    with asksaveasfile(filetypes = [("Variable Files", ".pbpVar")]) as file:
         file.write(variable_text)
 
 

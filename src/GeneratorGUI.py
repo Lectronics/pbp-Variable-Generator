@@ -1,12 +1,13 @@
 from tkinter import *
 from tkinter.filedialog import askopenfile
+from tkinter import simpledialog
 import struct
 import json
 import Menubar
 from GeneratorFuncts import generateVarFromValue as gen
 from GUI_Vars import placeGrid
 from GUI_Vars import custom_entry_initial_value as ceiv
-from BMFFuncts import fontToHex
+from BMFFuncts import fontToHex, scaleFont
 # from generatorFuncts import generateVarFromValue
 
 
@@ -251,7 +252,7 @@ class VariableGenerator(Frame):
 
         # pass
 
-        with askopenfile(filetypes=[("Variable Files", ".pyVar")]) as file:
+        with askopenfile(filetypes=[("Variable Files", ".pbpVar")]) as file:
             self.value = file.read()
 
             self.output_textbox.delete('1.0', 'end')
@@ -265,9 +266,11 @@ class VariableGenerator(Frame):
 
         with askopenfile(filetypes=[("Font Files", ".font")]) as file:
 
+            scale = simpledialog.askinteger("Font Scaling", "By What Factor do you want to scale the font?")
+
             font = file.read().split('\n')
             # print(font[1])
-            font_letters = eval(font[1])
+            pack_string, font_letters = scaleFont(eval(font[1]), scale_factor=scale) if scale > 1 else eval(font[1])
             font_letters = fontToHex(font_letters)
             # print(type(font_letters))
             font_keys = eval(font[5])
@@ -276,8 +279,8 @@ class VariableGenerator(Frame):
             # lowLevelFont = fontToHex(font_letters)
             # print(lowLevelFont)
 
-            for letter in font_letters:
-                hex_letter = struct.unpack('>sssss', letter)
+            for letter in font_letters[1:]:
+                hex_letter = struct.unpack(pack_string, letter)
                 # print(tuple1)
 
                 string_letter = '' # String letter is still a hex-encoded bitmat, just in the python format of a string as opposed to a byte string

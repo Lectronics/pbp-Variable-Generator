@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 from BMFFuncts import *
 from tkinter.filedialog import asksaveasfile
+# from tkinter import askinteger
 
 class BMF(Frame):
     def __init__(self, master=None):
@@ -216,6 +217,7 @@ class BMF(Frame):
         self.save_btn.grid(row=5, column=4)
 
 
+
     def fontOptions(self):
 
         self.options_lbl = Label(self, text="Number of Sizes:").pack(side='left')
@@ -235,6 +237,7 @@ class BMF(Frame):
         self.char_entry = Entry(self, width=12)
         self.char_entry.insert(0, self.char_index[self.font[0][0] - 1])
         self.char_entry.grid(row=6, column=7)
+
 
     
     def updateLabel(self):

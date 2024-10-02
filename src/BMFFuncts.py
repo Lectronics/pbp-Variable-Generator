@@ -10,8 +10,12 @@ def scaleFont(font, num_of_sizes=1, scale_factor=2) -> list:
 
     new_font = []
 
+    metadata = font[0]
+    metadata[2] = metadata[2] * scale_factor
+    metadata[3] = metadata[3] * scale_factor
 
-    for i, letter in enumerate(font[1:]):
+
+    for i, letter in enumerate(font[1:]): # making the rows twice as wide
 
         new_font.append([])
 
@@ -26,19 +30,24 @@ def scaleFont(font, num_of_sizes=1, scale_factor=2) -> list:
 
 
     extra_new_font = []
+    print(new_font)
+    # extra_new_font.append(metadata)
 
 
-    for y, letter in enumerate(new_font):
+    for i, letter in enumerate(new_font):
 
         extra_new_font.append([])
 
         for row in letter:
 
             for j in range(scale_factor):
-                extra_new_font[y].append(row)
+                extra_new_font[i].append(row)
 
+    extra_new_font.insert(0, metadata)
 
-    return extra_new_font
+    pack_string='>' + 's'*int(metadata[3]*metadata[2]/8)
+
+    return pack_string, extra_new_font
 
 
 def fontToHex(font, write_direction='v', size='byte') -> list:
@@ -49,7 +58,8 @@ def fontToHex(font, write_direction='v', size='byte') -> list:
     #           |   Metadata: [Current Character index,             |    Letter 1:  [row 1: {bit 1, bit 2...bit N},   |    Letter 2    |   Letter n   |
     #           |              Total number of Characters,          |                row 2,                           |                |              |
     #           |              Number of Rows,                      |                row 3...row N]                   |                |              |
-    #           |              Number of Columns]                   |                                                 |                |              |
+    #           |              Number of Columns,                   |                                                 |                |              |
+    #           |              Font Name]                           |                                                 |                |              |
     #           ---------------------------------------------------------------------------------------------------------------------------------------
     #
     # write_direction is 'h' for horizontal, 'v' for vertical:
@@ -81,14 +91,14 @@ def fontToHex(font, write_direction='v', size='byte') -> list:
 
     letters = [] # This is the array that will be returned
 
-    metadata = [4, 4, 8, 5, 'Font'] # font[0] # Storing the metadata before "forgetting it" when re-assigning the font as an nparray
+    metadata = font[0] # Storing the metadata before "forgetting it" when re-assigning the font as an nparray
 
     font = np.array(font[1:]) # Reassigning the font as a nparray without the metadata. This makes it easier to iterate over.
 
     if write_direction == 'h': 
 
         for letter in font[1:]:
-            pack_string = f'>{len(letter)}s'
+            pack_string = f'>{len(metadata[3])}s'
             string = ''
             for i in range(metadata[2]):
                 for bit in letter[i]:
@@ -103,34 +113,43 @@ def fontToHex(font, write_direction='v', size='byte') -> list:
 
         for index, letter in enumerate(font):
             letters.append([]) # Adding a letter in the letters array corresponding with a letter in the font array
-            pack_string = f'>{len(letter)}s'
+            pack_string = f'>{metadata[3]}s'
             # letters[index].append(pack_string) # Assigning a variable to use in the struct.pack function. <PASSED AS METADATA> because the 's' requires a byte
 
             for i in range(metadata[3]): # Iterating over the number of columns in the letter so that each 
 
-                for cycle in range(len(letter[:, i]) / size_lookup[size]): # Only appending 8 bits to each byte string by splitting the letter into "cycles"
+                column = letter[:, i]
+                letters[index].append([])
+
+                for cycle in range(int(len(column) / size_lookup[size])): # Only appending 8 bits to each byte string by splitting the letter into "cycles"
 
                     string = ''
-                    for bit in letter[:, i]: # using numpy indexing magic to iterate over a COLUMN of data from a 2-Dimensional Array
+                    for bit in column[cycle*8:cycle*8+8 if cycle*8+8 <= len(letter[:, i]) - 1 else len(letter[:, i])]: # using numpy indexing magic to iterate over eight bits of a COLUMN of data from a 2-Dimensional Array
                         string += str(bit)   # Adding a bit from what ever column is being iterated over
             
                     # letters[index].append(struct.pack('>B', int(string, 2)))
-                    letters[index].append(struct.pack('>B', int(string, 2)))
+                    letters[index][i].append(struct.pack('>B', int(string, 2)))
 
 
-        for i, letter in enumerate(letters[1:]):
+        for i, letter in enumerate(letters):
             letters[i] = b''  
-            for byte in letter:
-                letters[i] += byte
+            for column in letter:
+                for byte in column:
+                    letters[i] += byte
 
+    metadata.append(pack_string)
+    letters.insert(0, metadata)
     return letters
 
 
 if __name__ == "__main__":
 
     testFont = [[4, 4, 8, 5, 'Font'], [[0, 1, 0, 0, 0], [1, 0, 1, 0, 0], [1, 1, 1, 0, 0], [1, 0, 1, 0, 1], [1, 0, 0, 0, 0], [1, 1, 1, 0, 1], [1, 0, 1, 0, 1], [1, 1, 1, 0, 1]], [[1, 1, 1, 1, 1], [1, 0, 1, 0, 1], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0], [0, 0, 1, 0, 0]], [[0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 1]], [[0, 0, 0, 1, 1], [0, 0, 0, 0, 1], [0, 0, 0, 0, 1], [0, 0, 0, 0, 1], [0, 1, 1, 1, 1], [0, 1, 0, 0, 1], [0, 1, 0, 0, 1], [0, 1, 1, 1, 1]]]
+    
     lowLevelFont = fontToHex(testFont) #[b'*]]]*', b'\x04u^u\x04', b'~\x81\x81\x81B', b'\x00\x0f\t\x89\xff']
     print(lowLevelFont)
+
+
 
     # more_font_variables = []
     
@@ -148,4 +167,6 @@ if __name__ == "__main__":
 
     # print(more_font_variables)
 
-    print(fontToHex(scaleFont(testFont)))
+    scaled_font = scaleFont(testFont, scale_factor=1)
+    print(scaled_font)
+    print(fontToHex(scaled_font))
