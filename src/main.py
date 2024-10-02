@@ -1,6 +1,6 @@
 import GeneratorGUI as gui
 # import BMF_Tab
-
+import FontView
 import BMFGUI
 
 from tkinter import Tk, ttk
@@ -14,10 +14,13 @@ variable_tab = gui.VariableGenerator(master=tabbed_pages, root=root)
 
 # bmf_tab = BMF_Tab.BMFTab(master=tabbed_pages)
 bmf_gui = BMFGUI.BMF(master=tabbed_pages)
+
+font_viewer = FontView.view(master=tabbed_pages)
 # bmf_tab.child = bmf_gui
 
 tabbed_pages.add(variable_tab, text="Variable Generator")
 tabbed_pages.add(bmf_gui, text="Bit Map Font")
+tabbed_pages.add(font_viewer, text="font_viewer")
 
 tabbed_pages.pack(expand=1, fill="both")
 
